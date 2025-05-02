@@ -35,6 +35,13 @@ class PlayerControllerCommands(MixinMeta, metaclass=CompositeMetaClass):
 
         # Check if the voice channel is empty except for the bot.
         if ctx.guild.me.voice and len(ctx.guild.me.voice.channel.members) == 1:
+            can_skip = await self._can_instaskip(ctx, ctx.author)
+            if not can_skip and not await self.is_requester_alone(ctx):
+                return await self.send_embed_msg(
+                    ctx,
+                    title=_("Unable To Disconnect"),
+                    description=_("You need appropriate permissions to disconnect."),
+                )
             await self.send_embed_msg(ctx, title=_("Disconnecting..."))
             self.bot.dispatch("red_audio_audio_disconnect", ctx.guild)
             self.update_player_lock(ctx, False)
